@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>나만 알고 싶은 야탑 맛집 - 카페편</title>
+<title>나만 알고 싶은 카페 가이드</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -462,7 +462,11 @@ function updateActiveTab() {
   tabs.forEach(t => {
     const isActive = t.dataset.target === current;
     t.classList.toggle('active', isActive);
-    if (isActive) t.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+    if (isActive) {
+      const bar = document.getElementById('tabBar');
+      const offset = t.offsetLeft - bar.offsetWidth / 2 + t.offsetWidth / 2;
+      bar.scrollTo({ left: offset, behavior: 'smooth' });
+    }
   });
 }
 window.addEventListener('scroll', updateActiveTab, { passive:true });
