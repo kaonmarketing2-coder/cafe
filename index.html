@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나만 알고 싶은 카페 가이드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&display=swap');
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;scroll-padding-top:68px;}
+  body{font-family:'Noto Sans KR',sans-serif;background:#f8f6f3;color:#2c2c2c;line-height:1.7;}
+
+  /* ─── HERO (텍스트 온리) ─── */
+  .hero{
+    background:linear-gradient(135deg,#3a2a1a 0%,#5c3d24 50%,#3a2a1a 100%);
+    padding:72px 24px 56px;text-align:center;position:relative;overflow:hidden;
+  }
+  .hero::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 30% 40%,rgba(255,217,125,.12) 0%,transparent 60%),
+               radial-gradient(circle at 70% 70%,rgba(181,101,29,.1) 0%,transparent 50%);
+  }
+  .hero-inner{position:relative;z-index:1;max-width:600px;margin:0 auto;}
+  .hero-badge{
+    display:inline-block;background:rgba(255,255,255,.1);backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:13px;font-weight:500;
+    padding:6px 18px;border-radius:40px;margin-bottom:20px;letter-spacing:.5px;
+  }
+  .hero h1{color:#fff;font-size:clamp(28px,5.5vw,46px);font-weight:900;line-height:1.25;margin-bottom:12px;}
+  .hero h1 em{font-style:normal;color:#ffd97d;}
+  .hero p{color:rgba(255,255,255,.6);font-size:15px;line-height:1.7;}
+  .hero-line{width:48px;height:3px;background:#b5651d;border-radius:2px;margin:20px auto 0;}
+
+  /* ─── STICKY TAB BAR ─── */
+  .tab-bar{
+    position:sticky;top:0;z-index:100;background:rgba(255,255,255,.94);
+    backdrop-filter:blur(14px);border-bottom:1px solid #e8e4df;
+    display:flex;justify-content:center;gap:0;padding:0 12px;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+  }
+  .tab-bar::-webkit-scrollbar{display:none;}
+  .tab-item{
+    flex-shrink:0;padding:13px 18px;font-size:13px;font-weight:500;
+    color:#aaa;cursor:pointer;border-bottom:2.5px solid transparent;
+    transition:all .25s;white-space:nowrap;text-align:center;
+  }
+  .tab-item:hover{color:#666;}
+  .tab-item.active{color:#b5651d;border-bottom-color:#b5651d;font-weight:700;}
+  .tab-item .tab-emoji{display:block;font-size:18px;margin-bottom:1px;}
+
+  /* ─── SECTION ─── */
+  .cafe-section{max-width:760px;margin:0 auto;padding:56px 20px 40px;}
+  .section-num{font-size:13px;font-weight:700;color:#b5651d;letter-spacing:1px;margin-bottom:4px;}
+  .section-subtitle{font-size:13px;color:#999;margin-bottom:4px;}
+  .section-title{font-size:clamp(24px,4vw,32px);font-weight:800;margin-bottom:28px;line-height:1.3;}
+
+  /* ─── HERO IMAGE (per cafe) ─── */
+  .cafe-hero-img{
+    width:100%;height:280px;object-fit:cover;border-radius:16px;
+    margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,.08);
+  }
+
+  /* ─── PHOTO GRID ─── */
+  .cafe-photos{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:28px;border-radius:12px;overflow:hidden;}
+  .cafe-photos img{width:100%;height:140px;object-fit:cover;display:block;}
+
+  /* placeholder 이미지 */
+  .img-placeholder{
+    width:100%;height:280px;border-radius:16px;margin-bottom:20px;
+    background:#e8e2da;display:flex;align-items:center;justify-content:center;
+    color:#bbb;font-size:14px;font-weight:500;
+    box-shadow:0 4px 20px rgba(0,0,0,.06);
+  }
+  .grid-placeholder{
+    width:100%;height:140px;background:#e8e2da;display:flex;align-items:center;
+    justify-content:center;color:#bbb;font-size:12px;
+  }
+
+  /* ─── PROFILE BAR ─── */
+  .profile-bar{
+    display:flex;align-items:center;gap:14px;background:#fff;
+    border-radius:14px;padding:16px 20px;margin-bottom:18px;
+    box-shadow:0 2px 12px rgba(0,0,0,.04);
+  }
+  .profile-avatar{
+    width:46px;height:46px;border-radius:50%;background:#b5651d;
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:15px;flex-shrink:0;
+  }
+  .profile-info{flex:1;}
+  .profile-name{font-weight:700;font-size:14px;}
+  .profile-desc{font-size:12px;color:#999;}
+
+  /* ─── TIMING BADGE ─── */
+  .timing-badge{
+    display:inline-flex;align-items:center;gap:6px;
+    background:#fdf6ec;border:1px solid #f0d9a8;color:#b5651d;
+    font-size:13px;font-weight:600;padding:7px 16px;border-radius:40px;margin-bottom:22px;
+  }
+
+  /* ─── DESC ─── */
+  .cafe-desc{font-size:15px;color:#444;line-height:1.9;margin-bottom:26px;}
+
+  /* ─── QUOTE ─── */
+  .quote-block{
+    background:#fff;border-left:4px solid #b5651d;border-radius:0 14px 14px 0;
+    padding:22px 24px 22px 36px;margin-bottom:30px;font-size:16px;font-weight:600;
+    color:#3a3a3a;font-style:italic;box-shadow:0 2px 12px rgba(0,0,0,.04);position:relative;
+  }
+  .quote-block::before{content:'\201C';position:absolute;top:10px;left:12px;font-size:34px;color:#dfc9a3;font-style:normal;}
+
+  /* ─── MENU CARDS ─── */
+  .menu-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:30px;}
+  @media(max-width:600px){.menu-cards{grid-template-columns:1fr;}}
+  .menu-card{
+    background:#fff;border-radius:14px;padding:20px 16px;text-align:center;
+    box-shadow:0 2px 12px rgba(0,0,0,.04);transition:transform .2s;
+  }
+  .menu-card:hover{transform:translateY(-3px);}
+  .menu-img{width:100%;height:140px;object-fit:cover;border-radius:10px;margin-bottom:10px;}
+  .menu-emoji{font-size:34px;margin-bottom:8px;}
+  .menu-badge{display:inline-block;font-size:11px;font-weight:700;color:#fff;background:#b5651d;border-radius:20px;padding:2px 10px;margin-bottom:6px;}
+  .menu-badge.sub{background:#8fae6b;}
+  .menu-name{font-weight:700;font-size:14px;margin-bottom:4px;}
+  .menu-desc{font-size:12px;color:#888;line-height:1.6;}
+
+  /* ─── MAP / MEMO ─── */
+  .map-memo{background:#fff;border-radius:14px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:20px;}
+  .map-memo h4{font-size:14px;font-weight:700;margin-bottom:12px;}
+  .info-row{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#555;margin-bottom:7px;}
+  .info-row .label{flex-shrink:0;width:52px;font-weight:600;color:#999;}
+  .map-links{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .map-links a{
+    display:inline-flex;align-items:center;gap:6px;padding:10px 18px;
+    border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;transition:transform .15s;
+  }
+  .map-links a:hover{transform:translateY(-2px);}
+  .btn-naver{background:#03c75a;color:#fff;}
+  .btn-google{background:#4285f4;color:#fff;}
+  .memo-box{
+    background:#fdf6ec;border-radius:12px;padding:14px 16px;margin-top:14px;
+    font-size:13px;color:#7a6a4f;line-height:1.7;border:1px dashed #e0d0b0;
+  }
+  .memo-box strong{color:#b5651d;}
+
+  /* ─── DIVIDER ─── */
+  .section-divider{max-width:760px;margin:0 auto;padding:0 20px;}
+  .section-divider hr{border:none;border-top:1px dashed #ddd;}
+
+  /* ─── FOOTER ─── */
+  .footer{text-align:center;padding:48px 20px;font-size:12px;color:#bbb;}
+
+  /* ─── FADE IN ─── */
+  .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s;}
+  .fade-in.visible{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- ═══ HERO (텍스트 온리) ═══ -->
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-badge">☕ 야탑 로컬 가이드 · 카페편</span>
+    <h1>나만 알고 싶은<br><em>야탑 맛집</em></h1>
+    <p>동료들이 직접 발굴하고, 직접 먹어본 진짜 카페 이야기</p>
+    <div class="hero-line"></div>
+  </div>
+</section>
+
+<!-- ═══ STICKY TAB BAR ═══ -->
+<nav class="tab-bar" id="tabBar">
+  <div class="tab-item active" data-target="cafe1"><span class="tab-emoji">☕</span>탄커피</div>
+  <div class="tab-item" data-target="cafe2"><span class="tab-emoji">🫘</span>롱앤딥</div>
+  <div class="tab-item" data-target="cafe3"><span class="tab-emoji">🍰</span>프롬우주</div>
+  <div class="tab-item" data-target="cafe4"><span class="tab-emoji">🌿</span>카페 종화</div>
+</nav>
+
+<!-- ═══════════ CAFE 1 : 탄커피 ═══════════ -->
+<section class="cafe-section" id="cafe1">
+  <div class="fade-in">
+    <div class="section-num">01</div>
+    <div class="section-subtitle">혼자 가기 좋은 곳</div>
+    <h2 class="section-title">탄커피</h2>
+  </div>
+
+  <img class="cafe-hero-img fade-in" src="https://i.imgur.com/hs0f4wL.jpeg" alt="탄커피 외관">
+
+  <div class="cafe-photos fade-in">
+    <img src="https://i.imgur.com/xwNReZX.jpeg" alt="탄커피 내부">
+    <img src="https://i.imgur.com/Keo97yq.jpeg" alt="탄커피 메뉴">
+    <img src="https://i.imgur.com/CCZfNJ2.jpeg" alt="탄커피 분위기">
+  </div>
+
+  <div class="profile-bar fade-in">
+    <div class="profile-avatar">JW</div>
+    <div class="profile-info">
+      <div class="profile-name">개발QA파트 강준우M 추천</div>
+      <div class="profile-desc">야탑 거주 14년차의 단골</div>
+    </div>
+  </div>
+
+  <div class="timing-badge fade-in">🕐 점심시간 방문 추천</div>
+
+  <p class="cafe-desc fade-in">
+    야탑에서 14년을 살아온 진짜 로컬이 보증하는 커피 맛집. 부모님 소개로 처음 방문하게 됐고,
+    한 번 마셔본 뒤 '야탑동 커피 최강'이라는 확신을 갖게 된 곳입니다.
+    프랜차이즈 카페가 넘쳐나는 요즘, 오랜 내공이 느껴지는 <strong>융드립커피</strong> 한 잔으로
+    진짜 커피 맛을 경험해보세요.
+  </p>
+
+  <div class="quote-block fade-in">"야탑 거주 14년차가 말하는 커피 최강맛집"</div>
+
+  <div class="menu-cards fade-in">
+    <div class="menu-card">
+      <img class="menu-img" src="https://i.imgur.com/pjzKQ87.jpeg" alt="융드립커피">
+      <span class="menu-badge">강추</span>
+      <div class="menu-name">융드립커피</div>
+      <div class="menu-desc">에티오피아 아바야 게이샤 네추럴 원두로 내린 한 잔. 고소하고 구수한 맛에 카페 이름의 이유를 알겠다는 확신이 드는 커피. 부드러우면서도 깊은 풍미와 향이 인상적.</div>
+    </div>
+    <div class="menu-card">
+      <img class="menu-img" src="https://i.imgur.com/HI6p2KM.jpeg" alt="콜드브루">
+      <span class="menu-badge sub">추천</span>
+      <div class="menu-name">콜드브루</div>
+      <div class="menu-desc">초콜릿 맛이 가장 진했던 콜드브루. 큐브 얼음 대신 아이스볼 형태의 큼직한 얼음이 인상적 — 마치 칵테일 한 잔 같은 비주얼과 특별한 맛.</div>
+    </div>
+    <div class="menu-card">
+      <img class="menu-img" src="https://i.imgur.com/pnujMMG.jpeg" alt="핫초코">
+      <span class="menu-badge sub">추천</span>
+      <div class="menu-name">핫초코</div>
+      <div class="menu-desc">시나몬 향이 은은하게 감도는 깔끔한 핫초코. 텁텁함 없이 마무리가 산뜻해서 핫초코 불호인 사람도 좋아할 맛. 극강의 단맛보다는 균형 잡힌 스타일.</div>
+    </div>
+  </div>
+
+  <div class="map-memo fade-in">
+    <h4>📍 위치 및 정보</h4>
+    <div class="info-row"><span class="label">주소</span>경기 성남시 분당구 양현로310번길 7 1층</div>
+    <div class="info-row"><span class="label">영업</span>월 08:00–14:00 / 화–금 08:00–17:00 (토·일 휴무)</div>
+    <div class="map-links">
+      <a href="https://naver.me/IDkSbypC" target="_blank" class="btn-naver">🗺 네이버 지도</a>
+      <a href="https://maps.google.com/?cid=13255024114722542855" target="_blank" class="btn-google">📍 구글 지도</a>
+    </div>
+    <div class="memo-box"><strong>📝 답사 메모</strong><br>점심시간 방문 추천. 토·일 휴무이니 평일에 방문하세요! 주차는 건물 뒤쪽에 2대 가능.</div>
+  </div>
+</section>
+
+<div class="section-divider"><hr></div>
+
+<!-- ═══════════ CAFE 2 : 롱앤딥 ═══════════ -->
+<section class="cafe-section" id="cafe2">
+  <div class="fade-in">
+    <div class="section-num">02</div>
+    <div class="section-subtitle">팀원들과 함께 가기 좋은 곳</div>
+    <h2 class="section-title">롱앤딥 커피</h2>
+  </div>
+
+  <img class="cafe-hero-img fade-in" src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=800&q=75" alt="롱앤딥 외관">
+
+  <div class="cafe-photos fade-in">
+    <img src="https://images.unsplash.com/photo-1453614512568-c4024d13c247?w=400&q=70" alt="">
+    <img src="https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=400&q=70" alt="">
+    <img src="https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?w=400&q=70" alt="">
+  </div>
+
+  <div class="profile-bar fade-in">
+    <div class="profile-avatar">SH</div>
+    <div class="profile-info">
+      <div class="profile-name">마케팅팀 박서현S 추천</div>
+      <div class="profile-desc">매주 금요일 팀 회의를 여기서</div>
+    </div>
+  </div>
+
+  <div class="timing-badge fade-in">🕑 오후 2–4시 여유로움</div>
+
+  <p class="cafe-desc fade-in">
+    넓은 테이블과 조용한 분위기 덕분에 팀 미팅 장소로 최적입니다. 콘센트가 곳곳에 비치되어 있어
+    노트북 작업도 편하고, 커피 맛까지 보장되는 공간. 4인 이상 단체석도 넉넉합니다.
+  </p>
+
+  <div class="quote-block fade-in">"팀 회의하다 보면 어느새 2시간이 지나가는 곳"</div>
+
+  <div class="menu-cards fade-in">
+    <div class="menu-card">
+      <div class="menu-emoji">🧊</div><span class="menu-badge">강추</span>
+      <div class="menu-name">콜드브루</div>
+      <div class="menu-desc">깔끔한 산미와 깊은 바디감이 일품</div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-emoji">🍞</div><span class="menu-badge sub">추천</span>
+      <div class="menu-name">바질 토마토 샌드위치</div>
+      <div class="menu-desc">점심 대용으로 든든한 시그니처 메뉴</div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-emoji">🫐</div><span class="menu-badge sub">추천</span>
+      <div class="menu-name">블루베리 스무디</div>
+      <div class="menu-desc">커피가 부담될 때 가볍게 즐기는 선택</div>
+    </div>
+  </div>
+
+  <div class="map-memo fade-in">
+    <h4>📍 위치 및 정보</h4>
+    <div class="info-row"><span class="label">주소</span>경기 성남시 분당구 야탑로 000-0 2층</div>
+    <div class="info-row"><span class="label">영업</span>매일 10:00–22:00 (연중무휴)</div>
+    <div class="map-links">
+      <a href="#" target="_blank" class="btn-naver">🗺 네이버 지도</a>
+      <a href="#" target="_blank" class="btn-google">📍 구글 지도</a>
+    </div>
+    <div class="memo-box"><strong>📝 답사 메모</strong><br>2층 창가석이 가장 조용함. 단체 예약 시 전화 미리 하면 자리 확보 가능. Wi-Fi 속도 빠름.</div>
+  </div>
+</section>
+
+<div class="section-divider"><hr></div>
+
+<!-- ═══════════ CAFE 3 : 프롬우주 ═══════════ -->
+<section class="cafe-section" id="cafe3">
+  <div class="fade-in">
+    <div class="section-num">03</div>
+    <div class="section-subtitle">당 충전이 필요할 때</div>
+    <h2 class="section-title">프롬우주</h2>
+  </div>
+
+  <img class="cafe-hero-img fade-in" src="https://images.unsplash.com/photo-1514066558159-fc8c737ef259?w=800&q=75" alt="프롬우주 외관">
+
+  <div class="cafe-photos fade-in">
+    <img src="https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=70" alt="">
+    <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&q=70" alt="">
+    <img src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=400&q=70" alt="">
+  </div>
+
+  <div class="profile-bar fade-in">
+    <div class="profile-avatar">YJ</div>
+    <div class="profile-info">
+      <div class="profile-name">디자인팀 김유진D 추천</div>
+      <div class="profile-desc">디저트 맛집 탐방이 취미</div>
+    </div>
+  </div>
+
+  <div class="timing-badge fade-in">🕒 주말 오후 방문 추천</div>
+
+  <p class="cafe-desc fade-in">
+    수제 케이크와 구움과자로 유명한 디저트 특화 카페. 매장에 들어서면 달콤한 버터 향이 가득하고,
+    매주 바뀌는 시즌 메뉴가 방문할 때마다 새로운 즐거움을 줍니다. 인스타 감성 인테리어도 눈길을 끄는 곳.
+  </p>
+
+  <div class="quote-block fade-in">"케이크 하나로 하루가 행복해지는 마법 같은 곳"</div>
+
+  <div class="menu-cards fade-in">
+    <div class="menu-card">
+      <div class="menu-emoji">🍰</div><span class="menu-badge">강추</span>
+      <div class="menu-name">얼그레이 케이크</div>
+      <div class="menu-desc">은은한 베르가못 향과 부드러운 크림의 조화</div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-emoji">🍪</div><span class="menu-badge sub">추천</span>
+      <div class="menu-name">브라운버터 쿠키</div>
+      <div class="menu-desc">겉바속촉의 정석, 테이크아웃 1위 메뉴</div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-emoji">🥛</div><span class="menu-badge sub">추천</span>
+      <div class="menu-name">바닐라 라떼</div>
+      <div class="menu-desc">달콤한 디저트와 찰떡인 시그니처 음료</div>
+    </div>
+  </div>
+
+  <div class="map-memo fade-in">
+    <h4>📍 위치 및 정보</h4>
+    <div class="info-row"><span class="label">주소</span>경기 성남시 분당구 야탑동 000-0 1층</div>
+    <div class="info-row"><span class="label">영업</span>화–일 11:00–20:00 (월요일 휴무)</div>
+    <div class="map-links">
+      <a href="#" target="_blank" class="btn-naver">🗺 네이버 지도</a>
+      <a href="#" target="_blank" class="btn-google">📍 구글 지도</a>
+    </div>
+    <div class="memo-box"><strong>📝 답사 메모</strong><br>주말엔 웨이팅 있을 수 있음. 오픈런 추천! 케이크는 조각 한정 수량이라 일찍 가야 원하는 맛 선택 가능.</div>
+  </div>
+</section>
+
+<div class="section-divider"><hr></div>
+
+<!-- ═══════════ CAFE 4 : 카페 종화 ═══════════ -->
+<section class="cafe-section" id="cafe4">
+  <div class="fade-in">
+    <div class="section-num">04</div>
+    <div class="section-subtitle">주말에 가기 좋은 곳</div>
+    <h2 class="section-title">카페 종화</h2>
+  </div>
+
+  <img class="cafe-hero-img fade-in" src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=800&q=75" alt="카페 종화 외관">
+
+  <div class="cafe-photos fade-in">
+    <img src="https://images.unsplash.com/photo-1504630083234-14187a9df0f5?w=400&q=70" alt="">
+    <img src="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=400&q=70" alt="">
+    <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&q=70" alt="">
+  </div>
+
+  <div class="profile-bar fade-in">
+    <div class="profile-avatar">MK</div>
+    <div class="profile-info">
+      <div class="profile-name">기획팀 이민경P 추천</div>
+      <div class="profile-desc">주말마다 카페 산책이 루틴</div>
+    </div>
+  </div>
+
+  <div class="timing-badge fade-in">🕙 주말 오전 브런치 타임</div>
+
+  <p class="cafe-desc fade-in">
+    한옥 감성을 현대적으로 재해석한 공간이 인상적인 카페. 넓은 마당과 나무 그늘 아래 테라스 좌석이 있어
+    날씨 좋은 주말에 방문하면 힐링 그 자체입니다. 직접 로스팅한 원두와 정성스러운 한방 차 메뉴가
+    이 카페만의 차별점. 반려동물 동반도 가능해 주말 나들이 코스로 제격이에요.
+  </p>
+
+  <div class="quote-block fade-in">"마당에 앉아 차 한 잔 마시면 여기가 제주인 줄"</div>
+
+  <div class="menu-cards fade-in">
+    <div class="menu-card">
+      <div class="menu-emoji">🍵</div><span class="menu-badge">강추</span>
+      <div class="menu-name">대추 쌍화차</div>
+      <div class="menu-desc">직접 달인 한방 차, 몸이 따뜻해지는 깊은 맛</div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-emoji">🌰</div><span class="menu-badge sub">추천</span>
+      <div class="menu-name">흑임자 라떼</div>
+      <div class="menu-desc">고소한 흑임자와 우유의 부드러운 하모니</div>
+    </div>
+    <div class="menu-card">
+      <div class="menu-emoji">🥮</div><span class="menu-badge sub">추천</span>
+      <div class="menu-name">인절미 와플</div>
+      <div class="menu-desc">바삭한 와플 위 콩고물과 꿀의 환상 조합</div>
+    </div>
+  </div>
+
+  <div class="map-memo fade-in">
+    <h4>📍 위치 및 정보</h4>
+    <div class="info-row"><span class="label">주소</span>경기 성남시 분당구 야탑동 000-0</div>
+    <div class="info-row"><span class="label">영업</span>수–월 10:00–20:00 (화요일 휴무)</div>
+    <div class="map-links">
+      <a href="#" target="_blank" class="btn-naver">🗺 네이버 지도</a>
+      <a href="#" target="_blank" class="btn-google">📍 구글 지도</a>
+    </div>
+    <div class="memo-box"><strong>📝 답사 메모</strong><br>마당 테라스석은 선착순이라 오전 일찍 가야 확보 가능. 반려동물 동반 OK (리드줄 필수). 주차장 넓음.</div>
+  </div>
+</section>
+
+<footer class="footer">
+  © 2025 야탑 로컬 가이드 · 카페편 — 직접 가보고 쓴 진짜 리뷰
+</footer>
+
+<script>
+const tabs = document.querySelectorAll('.tab-item');
+const sections = document.querySelectorAll('.cafe-section');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.getElementById(tab.dataset.target).scrollIntoView({ behavior:'smooth' });
+  });
+});
+
+function updateActiveTab() {
+  let current = sections[0].id;
+  sections.forEach(sec => {
+    if (sec.getBoundingClientRect().top < 120) current = sec.id;
+  });
+  tabs.forEach(t => {
+    const isActive = t.dataset.target === current;
+    t.classList.toggle('active', isActive);
+    if (isActive) t.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+  });
+}
+window.addEventListener('scroll', updateActiveTab, { passive:true });
+
+const faders = document.querySelectorAll('.fade-in');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }});
+}, { threshold:0.15 });
+faders.forEach(f => obs.observe(f));
+</script>
+</body>
+</html>
